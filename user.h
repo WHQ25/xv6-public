@@ -3,7 +3,11 @@ struct rtcdate;
 
 // system calls
 int fork(void);
+//===========Modified code below=================
+// changed int exit(void) to int exit(int status)
+//   - Jonathan
 int exit(int status) __attribute__((noreturn));
+//===========End of modified code================
 int wait(void);
 int pipe(int*);
 int write(int, const void*, int);
