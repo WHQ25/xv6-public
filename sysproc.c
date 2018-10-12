@@ -13,12 +13,16 @@ sys_fork(void)
   return fork();
 }
 
+//===============Modified Code Below=======================
 int
 sys_exit(void)
 {
-  exit();
+  int status; // int status variable 
+  argint(0, &status); // argument int function given to us by XV6 
+  exit(status);
   return 0;  // not reached
 }
+//===============End of Modified Code======================
 
 int
 sys_wait(void)
