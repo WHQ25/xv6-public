@@ -15,7 +15,7 @@ sys_fork(void)
 
 //===============Modified Code Below=======================
 int
-sys_exit(void)
+sys_exit()
 {
   int status; // int status variable 
   argint(0, &status); // argument int function given to us by XV6 
