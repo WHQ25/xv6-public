@@ -301,7 +301,7 @@ wait(int *status)
         p->state = UNUSED;
         release(&ptable.lock);
         if(status) // status can be NULL
-          status = *(p->exitStatus);
+          *status = p->exitStatus;
         return pid;
       }
     }
