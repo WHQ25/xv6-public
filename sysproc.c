@@ -25,7 +25,9 @@ sys_exit(void)
 int
 sys_wait(void)
 {
-  return wait(NULL);
+  int status;
+  argint(0, &status)
+  return wait(&status);
 }
 
 int
