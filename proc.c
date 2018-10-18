@@ -321,7 +321,7 @@ int
 waitpid(int pid, int *status, int option)
 {
   struct proc *p;
-  int havekids, pid;
+  int havekids, tpid;
   acquire(&ptable.lock);
 
   struct proc *targetProc;
@@ -340,7 +340,7 @@ waitpid(int pid, int *status, int option)
           havekids = 1;
           if (p->state == ZOMBIE) {
               // Found one.
-              pid = p->pid;
+              tpid = p->pid;
               kfree(p->kstack);
               p->kstack = 0;
               freevm(p->pgdir);
@@ -352,7 +352,7 @@ waitpid(int pid, int *status, int option)
               release(&ptable.lock);
               if (status) // status can be NULL
                   *status = p->exitStatus;
-              return pid;
+              return tpid;
           }
       }
 
