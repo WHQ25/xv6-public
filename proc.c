@@ -324,11 +324,16 @@ waitpid(int pid, int *status, int option)
   int havekids, tpid;
   acquire(&ptable.lock);
 
-  struct proc *targetProc;
+  struct proc *targetProc = 0;
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
     if (p->pid == pid) {
       targetProc = p;
     }
+  }
+
+  // if can't find target process, return -1
+  if (!targetProc) {
+    return -1;
   }
 
   for(;;) {
