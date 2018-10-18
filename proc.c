@@ -336,39 +336,39 @@ waitpid(int pid, int *status, int option)
     return -1;
   }
 
-  for(;;) {
-      // Scan through table looking for exited children.
-      havekids = 0;
-      for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-          if (p->parent != targetProc)
-              continue;
-          havekids = 1;
-          if (p->state == ZOMBIE) {
-              // Found one.
-              tpid = p->pid;
-              kfree(p->kstack);
-              p->kstack = 0;
-              freevm(p->pgdir);
-              p->pid = 0;
-              p->parent = 0;
-              p->name[0] = 0;
-              p->killed = 0;
-              p->state = UNUSED;
-              release(&ptable.lock);
-              if (status) // status can be NULL
-                  *status = p->exitStatus;
-              return tpid;
-          }
+  for(;;){
+    // Scan through table looking for exited children.
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->parent != targetProc)
+        continue;
+      havekids = 1;
+      if(p->state == ZOMBIE){
+        // Found one.
+        tpid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        release(&ptable.lock);
+        if(status) // status can be NULL
+          *status = p->exitStatus;
+        return tpid;
       }
+    }
 
-      // No point waiting if we don't have any children.
-      if (!havekids || targetProc->killed) {
-          release(&ptable.lock);
-          return -1;
-      }
+    // No point waiting if we don't have any children.
+    if(!havekids || targetProc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
 
-      // Wait for children to exit.  (See wakeup1 call in proc_exit.)
-      sleep(targetProc, &ptable.lock);  //DOC: wait-sleep
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(targetProc, &ptable.lock);  //DOC: wait-sleep
   }
 }
 
