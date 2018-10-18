@@ -271,14 +271,6 @@ exit(int status)
 }
 
 
-// Add a proxy exit function without exit status argument
-// exit() is equivalent to exit(0)
-void exit(void)
-{
-  exit(0);
-}
-
-
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
 int
