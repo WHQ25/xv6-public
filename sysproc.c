@@ -26,7 +26,7 @@ int
 sys_wait(void)
 {
   int status;
-  argint(0, &status)
+  argint(0, &status);
   return wait(&status);
 }
 
