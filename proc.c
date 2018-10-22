@@ -321,31 +321,20 @@ int
 waitpid(int pid, int *status, int option)
 {
   struct proc *p;
-  int havekids, tpid;
+  struct proc *curproc = myproc();
+  int foundTarget = 0;
+
   acquire(&ptable.lock);
 
-  struct proc *targetProc = 0;
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-    if (p->pid == pid) {
-      targetProc = p;
-    }
-  }
-
-  // if can't find target process, return -1
-  if (!targetProc) {
-    return -1;
-  }
-
-  for(;;){
-    // Scan through table looking for exited children.
-    havekids = 0;
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != targetProc)
+  for(;;) {
+    // Scan through table looking for t
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p->pid != pid)
         continue;
-      havekids = 1;
-      if(p->state == ZOMBIE){
-        // Found one.
-        tpid = p->pid;
+      foundTarget = 1;
+      if (p->state == ZOMBIE) {
+        // target process has terminated
+        pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
         freevm(p->pgdir);
@@ -355,20 +344,20 @@ waitpid(int pid, int *status, int option)
         p->killed = 0;
         p->state = UNUSED;
         release(&ptable.lock);
-        if(status) // status can be NULL
+        if (status) // status can be NULL
           *status = p->exitStatus;
-        return tpid;
+        return pid;
       }
     }
 
-    // No point waiting if we don't have any children.
-    if(!havekids || targetProc->killed){
+    // if target process is not found return -1
+    if (!foundTarget || curproc->killed) {
       release(&ptable.lock);
       return -1;
     }
 
-    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
-    sleep(targetProc, &ptable.lock);  //DOC: wait-sleep
+    // wait for target process to exit
+    sleep(curproc, &ptable.lock);
   }
 }
 
