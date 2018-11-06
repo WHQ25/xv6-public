@@ -6,6 +6,7 @@ int main(int argc, char *argv[])
 	
 	int exitWait(void);
 	int waitPid(void);
+    int PScheduler(void);
 
   printf(1, "\n This program tests the correctness of your lab#1\n");
   
