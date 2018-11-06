@@ -365,6 +365,7 @@ int setpriority(int priority)
 {
   struct proc *curproc = myproc();
   curproc->priority = priority;
+  return 0;
 }
 
 
