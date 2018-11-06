@@ -404,16 +404,18 @@ scheduler(void)
     // to release ptable.lock and then reacquire it
     // before jumping back to us.
     p = hpp;
-    c->proc = p;
-    switchuvm(p);
-    p->state = RUNNING;
+    if (p->state == RUNNABLE) {
+      c->proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
 
-    swtch(&(c->scheduler), p->context);
-    switchkvm();
+      swtch(&(c->scheduler), p->context);
+      switchkvm();
 
-    // Process is done running for now.
-    // It should have changed its p->state before coming back.
-    c->proc = 0;
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+    }
 
     release(&ptable.lock);
   }
