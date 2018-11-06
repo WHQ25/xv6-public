@@ -361,6 +361,11 @@ waitpid(int pid, int *status, int option)
   }
 }
 
+int setpriority(int priority)
+{
+  struct proc *curproc = myproc();
+  curproc->priority = priority;
+}
 
 
 //PAGEBREAK: 42
