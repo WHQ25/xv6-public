@@ -381,6 +381,7 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *hpp;
   struct cpu *c = mycpu();
   c->proc = 0;
 
