@@ -88,7 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-
+  p->priority = 20;
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -225,7 +225,7 @@ fork(void)
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
 void
-exit(void)
+exit(int status)
 {
   struct proc *curproc = myproc();
   struct proc *p;
@@ -249,6 +249,9 @@ exit(void)
 
   acquire(&ptable.lock);
 
+  // Set exit status
+  curproc->exitStatus = status;
+
   // Parent might be sleeping in wait().
   wakeup1(curproc->parent);
 
@@ -267,10 +270,11 @@ exit(void)
   panic("zombie exit");
 }
 
+
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
 int
-wait(void)
+wait(int *status)
 {
   struct proc *p;
   int havekids, pid;
@@ -296,6 +300,8 @@ wait(void)
         p->killed = 0;
         p->state = UNUSED;
         release(&ptable.lock);
+        if(status) // status can be NULL
+          *status = p->exitStatus;
         return pid;
       }
     }
@@ -311,6 +317,58 @@ wait(void)
   }
 }
 
+int
+waitpid(int pid, int *status, int option)
+{
+  struct proc *p;
+  struct proc *curproc = myproc();
+  int foundTarget = 0;
+
+  acquire(&ptable.lock);
+
+  for(;;) {
+    // Scan through table looking for t
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p->pid != pid)
+        continue;
+      foundTarget = 1;
+      if (p->state == ZOMBIE) {
+        // target process has terminated
+        pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        release(&ptable.lock);
+        if (status) // status can be NULL
+          *status = p->exitStatus;
+        return pid;
+      }
+    }
+
+    // if target process is not found return -1
+    if (!foundTarget || curproc->killed) {
+      release(&ptable.lock);
+      return -1;
+    }
+
+    // wait for target process to exit
+    sleep(curproc, &ptable.lock);
+  }
+}
+
+int setpriority(int priority)
+{
+  struct proc *curproc = myproc();
+  curproc->priority = priority;
+  return 0;
+}
+
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -318,40 +376,53 @@ wait(void)
 //  - choose a process to run
 //  - swtch to start running that process
 //  - eventually that process transfers control
-//      via swtch back to the scheduler.
+//     via swtch back to the scheduler.
 void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *hpp;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+    // Reset hpp
+    hpp = 0;
+
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p->state != RUNNABLE)
         continue;
+      if (hpp == 0)
+        hpp = p; // initialize hpp
+      // smaller priority value indicate higher priority
+      if (p->priority < hpp->priority) {
+          hpp = p; // update hpp
+      }
+    }
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
+    if (hpp != 0) {
+      for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+          if (p->priority != hpp->priority)
+            p->priority = p->priority + 1;
+      }
+      hpp->priority = hpp->priority - 1;
+      c->proc = hpp;
+      switchuvm(hpp);
+      hpp->state = RUNNING;
 
-      swtch(&(c->scheduler), p->context);
+      swtch(&(c->scheduler), hpp->context);
       switchkvm();
-
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
     }
-    release(&ptable.lock);
 
+    release(&ptable.lock);
   }
 }
 
