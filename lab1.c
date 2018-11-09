@@ -148,7 +148,6 @@ int PScheduler(void){
 int PriorityAgingTest(void) {
   int pid, ret_pid, exit_status;
   int i,j,k;
-  int place = 0;
 
   setpriority(0);
   for (i = 0; i <  3; i++) {
