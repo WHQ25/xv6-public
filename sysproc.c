@@ -51,6 +51,14 @@ sys_setpriority(void)
 }
 
 int
+sys_getpriority(void)
+{
+  int pid;
+  argint(0, &pid);
+  return getpriority(pid);
+}
+
+int
 sys_kill(void)
 {
   int pid;

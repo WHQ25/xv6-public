@@ -361,11 +361,27 @@ waitpid(int pid, int *status, int option)
   }
 }
 
-int setpriority(int priority)
+int
+setpriority(int priority)
 {
   struct proc *curproc = myproc();
   curproc->priority = priority;
   return 0;
+}
+
+int
+getpriority(int pid)
+{
+  struct proc * p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->pid == pid) {
+      release(&ptable.lock);
+      return p->priority;
+    }
+  }
+  release(&ptable.lcok);
+  return -1;
 }
 
 
