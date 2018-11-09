@@ -380,7 +380,7 @@ getpriority(int pid)
       return p->priority;
     }
   }
-  release(&ptable.lcok);
+  release(&ptable.lock);
   return -1;
 }
 
