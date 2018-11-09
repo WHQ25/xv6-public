@@ -426,7 +426,8 @@ scheduler(void)
         if (p == hpp) {
           p->priority ++;
         } else {
-          p->priority --;
+          if (p->priority > 0)
+            p->priority --;
         }
       }
 
