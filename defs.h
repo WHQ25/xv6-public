@@ -120,6 +120,7 @@ void            userinit(void);
 int             wait(int*);
 int             waitpid(int, int*, int);
 int             setpriority(int);
+int             getpriority(int);
 void            wakeup(void*);
 void            yield(void);
 
