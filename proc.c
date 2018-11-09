@@ -404,6 +404,16 @@ scheduler(void)
     }
 
     if (hpp != 0) {
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state != RUNNABLE)
+          continue;
+        if (p == hpp) {
+          p->priority ++;
+        } else {
+          p->priority --;
+        }
+      }
+
       c->proc = hpp;
       switchuvm(hpp);
       hpp->state = RUNNING;
