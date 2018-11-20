@@ -7,6 +7,9 @@
 #include "x86.h"
 #include "syscall.h"
 
+
+//=================== TODO 3: Update all funtions to use new memory funtion in vm.c =================
+
 // User code makes a system call with INT T_SYSCALL.
 // System call number in %eax.
 // Arguments on the stack, from the user call to the C
