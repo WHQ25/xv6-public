@@ -218,6 +218,8 @@ loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz)
 
 // Allocate page tables and physical memory to grow process from oldsz to
 // newsz, which need not be page aligned.  Returns new size or 0 on error.
+
+//==============TODO 1- 2: Lab 3 changes in here ================================
 int
 allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 {
@@ -247,6 +249,8 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   }
   return newsz;
 }
+//====================TODO ENDS HERE============================================
+
 
 // Deallocate user pages to bring the process size from oldsz to
 // newsz.  oldsz and newsz need not be page-aligned, nor does newsz
