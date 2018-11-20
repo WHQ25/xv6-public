@@ -218,8 +218,9 @@ loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz)
 
 // Allocate page tables and physical memory to grow process from oldsz to
 // newsz, which need not be page aligned.  Returns new size or 0 on error.
-
-//==============TODO 1- 2: Lab 3 changes in here ================================
+//=======================================================================================================================================
+//==============TODO 2: Change allocuvm to locate the stack starting at the top of the user address space to give it room to grow   =====
+//=======================================================================================================================================
 int
 allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
 {
@@ -249,8 +250,9 @@ allocuvm(pde_t *pgdir, uint oldsz, uint newsz)
   }
   return newsz;
 }
+//==============================================================================
 //====================TODO ENDS HERE============================================
-
+//==============================================================================
 
 // Deallocate user pages to bring the process size from oldsz to
 // newsz.  oldsz and newsz need not be page-aligned, nor does newsz
@@ -314,6 +316,9 @@ clearpteu(pde_t *pgdir, char *uva)
   *pte &= ~PTE_U;
 }
 
+//=============================================================================
+//=================TODO 4: Change copyumv to account for new stack=============
+//=============================================================================
 // Given a parent process's page table, create a copy
 // of it for a child.
 pde_t*
@@ -347,6 +352,9 @@ bad:
   freevm(d);
   return 0;
 }
+//============================================================================
+//=======================END OF TODO==========================================
+//============================================================================
 
 //PAGEBREAK!
 // Map user virtual address to kernel address.
