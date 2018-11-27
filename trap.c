@@ -81,6 +81,11 @@ trap(struct trapframe *tf)
     break;
 
   //PAGEBREAK: 13
+  case T_PGFLT:// Trap for pagefault
+    if(rcr2() == sz - 1){ // if the address is bellow the bottom of the current page/ start of new page
+      allocuvm(pgdir, rcr2(), rcr2() - 10); // alocate more memory to grow the stack
+      sz += 1;// increment stack size counter
+    }
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){
       // In kernel, it must be our mistake.
