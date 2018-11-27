@@ -331,6 +331,18 @@ copyuvm(pde_t *pgdir, uint sz)
 
   if((d = setupkvm()) == 0)
     return 0;
+  // Unsure if this is what the guide wants 
+  for (j = 0; j < pages ; j += 1 ){
+
+    pa = PTE_ADDR(*pte);
+    flags = PTE_FLAGS(*pte);
+    memmove(mem, (char*)P2V(pa), 1);
+    mappages(d, (void*)j, 1, V2P(mem), flags);
+  }
+  pages += 1;
+  // should iterate through the number of pages and incress page counter
+  
+  
   for(i = 0; i < sz; i += PGSIZE){
     if((pte = walkpgdir(pgdir, (void *) i, 0)) == 0)
       panic("copyuvm: pte should exist");
