@@ -66,11 +66,13 @@ exec(char *path, char **argv)
   //==================================TODO 1:Change code block to move the stack so it can grow=========================
   //====================================================================================================================
   sz = PGROUNDUP(sz);
-  if((sz = allocuvm(pgdir, sz, sz + 2*PGSIZE)) == 0)
+  if((sz = allocuvm(pgdir, KERNBASE - 1, KERNBASE - 10)) == 0) //changed second and third input to use kernbase
     goto bad;
-  clearpteu(pgdir, (char*)(sz - 2*PGSIZE));
-  sp = sz;
-
+  clearpteu(pgdir, (char*)(sz - 2*PGSIZE)); // unsure if we need to change this
+  sp = KERNBASE - 1; // TODO 2:  change this to the address of the top word in the stack page
+  
+  // see lab helper file for explination on changes
+  
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
     if(argc >= MAXARG)
