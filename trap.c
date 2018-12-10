@@ -78,9 +78,11 @@ trap(struct trapframe *tf)
     lapiceoi();
     break;
   case T_PGFLT:
-    if(rcr2() >= KERNBASE - (myproc()->spc - 1) * PGSIZE){
-      uint np = KERNBASE - (myproc()->spc + 1);
-      if(allocuvm(myproc()->gdir, np, np + 1) != 0){
+    ;
+    uint sb = KERNBASE - myproc()->spc * PGSIZE; // stack bottom
+    uint np = KERNBASE - (myproc()->spc + 1) * PGSIZE; // next page
+    if(rcr2() < sb && rcr2() >= np){
+      if(allocuvm(myproc()->pgdir, np, np + 1) != 0){
         myproc()->spc ++;
         break;
       }

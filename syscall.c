@@ -17,7 +17,7 @@
 int
 fetchint(uint addr, int *ip)
 {
-  struct proc *curproc = myproc();
+  //struct proc *curproc = myproc();
 
   if(addr >= KERNBASE - 1 || addr+4 > KERNBASE - 1)
     return -1;
@@ -32,7 +32,7 @@ int
 fetchstr(uint addr, char **pp)
 {
   char *s, *ep;
-  struct proc *curproc = myproc();
+  //struct proc *curproc = myproc();
 
   if(addr >= KERNBASE - 1)
     return -1;
@@ -59,7 +59,7 @@ int
 argptr(int n, char **pp, int size)
 {
   int i;
-  struct proc *curproc = myproc();
+  //struct proc *curproc = myproc();
  
   if(argint(n, &i) < 0)
     return -1;
