@@ -195,5 +195,5 @@ int             mappages(pde_t *pgdir, void *va, uint size, uint pa, int perm);
 
 // shm.c
 void            shminit(void);
-int             shm_open(int, char **);
+int             shm_open(int, char**);
 int             shm_close(int);

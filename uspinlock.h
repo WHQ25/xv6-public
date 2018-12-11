@@ -1,5 +1,3 @@
-
-
 struct uspinlock {
 uint locked;
 };

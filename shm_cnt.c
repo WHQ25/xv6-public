@@ -2,11 +2,34 @@
 #include "stat.h"
 #include "user.h"
 #include "uspinlock.h"
+#include "x86.h"
 
 struct shm_cnt {
    struct uspinlock lock;
    int cnt;
 };
+
+void
+uacquire(struct uspinlock *lk)
+{
+    // The xchg is atomic.
+    while(xchg(&lk->locked, 1) != 0)
+        ;
+
+    // Tell the C compiler and the processor to not move loads or stores
+    // past this point, to ensure that the critical section's memory
+    // references happen after the lock is acquired.
+    __sync_synchronize();
+}
+
+void urelease (struct uspinlock *lk) {
+    __sync_synchronize();
+
+    // Release the lock, equivalent to lk->locked = 0.
+    // This code can't use a C assignment, since it might
+    // not be atomic. A real OS would use C atomics here.
+    asm volatile("movl $0, %0" : "+m" (lk->locked) : );
+}
 
 int main(int argc, char *argv[])
 {
@@ -37,12 +60,13 @@ shm_open(1,(char **)&counter);
   if(pid)
      {
        printf(1,"Counter in parent is %d\n",counter->cnt);
-    wait();
+    int status;
+    wait(&status);
     } else
     printf(1,"Counter in child is %d\n\n",counter->cnt);
 
 //shm_close: first process will just detach, next one will free up the shm_table entry (but for now not the page)
    shm_close(1);
-   exit();
+   exit(0);
    return 0;
 }
