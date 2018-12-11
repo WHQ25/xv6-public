@@ -31,7 +31,7 @@ void shminit() {
 int shm_open(int id, char **pointer) {
     int i;
 
-    initlock(&(shm_table.lock), "SHM lock");
+    
     acquire(&(shm_table.lock));
     for (i = 0; i< 64; i++) {
 
@@ -70,7 +70,7 @@ int shm_open(int id, char **pointer) {
 int shm_close(int id) {
 //you write this too!
     int i;
-    initlock(&(shm_table.lock), "SHM lock");
+    
     acquire(&(shm_table.lock));
     for (i = 0; i< 64; i++) {
 
